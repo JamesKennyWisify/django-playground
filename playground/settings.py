@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'playground'
 ]
 
 MIDDLEWARE = [
@@ -74,8 +75,11 @@ WSGI_APPLICATION = 'playground.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+DATABASE_ROUTERS = ['playground.router.DjangoRouter', 'playground.router.DatabaseRouter']
+
 DATABASES = {
-    'default': {
+    'default': {},
+    'db_1': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'postgres_1',
         'USER': 'postgres',
@@ -92,6 +96,8 @@ DATABASES = {
         'PORT': '5432',  # Use the default port for db_2
     },
 }
+
+
 
 
 # Password validation

@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+# from .admin import db_1_admin_site, db_2_admin_site
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # path('db_1_admin/', db_1_admin_site.urls),
+    # path('db_2_admin/', db_2_admin_site.urls),
 ]
