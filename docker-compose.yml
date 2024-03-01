@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  db_1:
+    build:
+      context: ./postgres
+    ports:
+      - "5431:5432"
+    volumes:
+      - pgdata_1:/var/lib/postgresql/data_1
+    environment:
+      POSTGRES_PASSWORD: db_password 
+      POSTGRES_DB: postgres_1 
+
+  db_2:
+    build:
+      context: ./postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_2:/var/lib/postgresql/data_2
+    environment:
+      POSTGRES_PASSWORD: db_password 
+      POSTGRES_DB: postgres_2 
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db_1
+      - db_2
+
+volumes:
+  pgdata_1:
+  pgdata_2:
