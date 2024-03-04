@@ -5,11 +5,11 @@ from encrypted_model_fields.fields import EncryptedCharField
 
 class MedicalUser(AbstractUser, models.Model):
     ethnicity = models.CharField(max_length=100)
-    encryptedName = EncryptedCharField(max_length=50)
     birthdate = models.DateField()
     groups = models.ManyToManyField(Group, verbose_name=('groups'), blank=True, related_name='medical_users')
     user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='medical_users')
     address = models.ForeignKey('Address', on_delete=models.CASCADE, related_name='user_address')
+    encrypedName = EncryptedCharField(max_length=255, default='', blank=True, null=True)
 
 class Appointment(models.Model):
     date = models.DateTimeField()
@@ -25,3 +25,15 @@ class Address(models.Model):
     address_line_2 = EncryptedCharField(max_length=255, blank=True, null=True)
     city = EncryptedCharField(max_length=50)
     post_code = EncryptedCharField(max_length=50)
+
+class RandomWriteObject(models.Model):
+    encryptedName = EncryptedCharField(max_length=255)
+    encryptedName2 = EncryptedCharField(max_length=255)
+    encryptedName3 = EncryptedCharField(max_length=255)
+    encryptedName4 = EncryptedCharField(max_length=255)
+    encryptedName5 = EncryptedCharField(max_length=255)
+    encryptedName6 = models.CharField(max_length=50)
+    encryptedName7 = models.CharField(max_length=50)
+    encryptedName8 = models.CharField(max_length=50)
+    encryptedName9 = models.CharField(max_length=50)
+    encryptedName10 = models.CharField(max_length=50)
