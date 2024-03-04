@@ -2,3 +2,4 @@ Django==3.2
 psycopg2==2.9.9
 faker==23.3.0
 django-encrypted-model-fields==0.6.5
+django-silk==0.5.3
