@@ -8,7 +8,7 @@ from .models import MedicalUser
 
 def generate_users(request):
     fake = Faker()
-    print("MAKING USERsS --------------------------------------------")
+    print("MAKING USERS --------------------------------------------")
     # Generate 100 users
     for _ in range(100):
         # Generate fake data
