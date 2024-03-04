@@ -33,6 +33,8 @@ services:
     depends_on:
       - db_1
       - db_2
+    environment:
+      FIELD_ENCRYPTION_KEY: YKBBwR_bgyQhc-7egBlY4evdyZom1CgCPg7BEZmdXkE=
 
 volumes:
   pgdata_1:

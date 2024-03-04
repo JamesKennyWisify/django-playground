@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'playground',
+    'encrypted_model_fields',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +70,8 @@ TEMPLATES = [
     },
 ]
 
+FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY')
+
 WSGI_APPLICATION = 'playground.wsgi.application'
 
 
@@ -82,14 +86,6 @@ DATABASES = {
         'PASSWORD': 'db_password',
         'HOST': 'db_1',
         'PORT': '5432',  # Use the port mapped to db_1
-    },
-    'db_2': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres_2',
-        'USER': 'postgres',
-        'PASSWORD': 'db_password',
-        'HOST': 'db_2',
-        'PORT': '5432',  # Use the default port for db_2
     },
 }
 
