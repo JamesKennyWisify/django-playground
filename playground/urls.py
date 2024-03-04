@@ -15,10 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import generate_users
+from .views import generate_users, delete_users, get_users, get_usernames, get_ethnicities
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('generate_users', generate_users, name="generate_users"),
+    path('delete_users', delete_users, name="delete_users"),
+    path('get_users/<int:limit>', get_users, name="get_users"),
+    path('get_usernames/<int:limit>', get_usernames, name="get_usernames"),
+    path('get_ethnicities/<int:limit>', get_ethnicities, name="get_ethnicities"),
     path('silk/', include('silk.urls', namespace='silk'))    
 ]

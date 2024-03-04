@@ -9,7 +9,7 @@ class MedicalUser(AbstractUser, models.Model):
     birthdate = models.DateField()
     groups = models.ManyToManyField(Group, verbose_name=('groups'), blank=True, related_name='medical_users')
     user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='medical_users')
-    address = models.ForeignKey('Adress', on_delete=models.CASCADE, relate_name='user_address')
+    address = models.ForeignKey('Address', on_delete=models.CASCADE, related_name='user_address')
 
 class Appointment(models.Model):
     date = models.DateTimeField()
@@ -18,7 +18,7 @@ class Appointment(models.Model):
 
 class Entity(models.Model):
     name = models.CharField(max_length=100)
-    address = models.ForeignKey('Adress', on_delete=models.CASCADE, relate_name='entity_address')
+    address = models.ForeignKey('Address', on_delete=models.CASCADE, related_name='entity_address')
 
 class Address(models.Model):
     address_line_1 = EncryptedCharField(max_length=255)
