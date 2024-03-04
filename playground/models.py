@@ -25,5 +25,3 @@ class Address(models.Model):
     address_line_2 = EncryptedCharField(max_length=255, blank=True, null=True)
     city = EncryptedCharField(max_length=50)
     post_code = EncryptedCharField(max_length=50)
-
-
