@@ -7,3 +7,10 @@ class MedicalUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicalUser
         fields = '__all__'
+
+class UnencryptedMedicalUserSerializer(serializers.ModelSerializer):
+    birthdate = serializers.DateField(format="%d-%m-%Y")
+
+    class Meta:
+        model = MedicalUser
+        fields = '__all__'
