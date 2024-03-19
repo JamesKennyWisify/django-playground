@@ -1,6 +1,7 @@
 # users/views.py
 import json
 import random
+import time
 from django.http import JsonResponse
 from faker import Faker
 from django.utils import timezone
@@ -189,6 +190,7 @@ def generate_appointment_data(request, limit = 100):
         ethnicity = ['White', 'Black', 'Asian', 'Hispanic', 'Other'][random.randint(0, 4)]
         birthdate = fake.date_of_birth()
 
+        start_time = time.time()
         # Create MedicalUser object
         user = MedicalUser.objects.create_user(
             encryptedName = encryptedName,
@@ -200,7 +202,11 @@ def generate_appointment_data(request, limit = 100):
             birthdate = birthdate,
             address = address
         )
+        # Calculate the elapsed time
+        elapsed_time = time.time() - start_time
+        print("Elapsed Time for encrypted data: {} seconds".format(elapsed_time))
 
+        start_time = time.time()
         unencryptedUser = UnencryptedMedicalUser.objects.create_user(
             unencryptedName = encryptedName,
             username = str(i) + username,
@@ -211,6 +217,8 @@ def generate_appointment_data(request, limit = 100):
             birthdate = birthdate,
             address = unencryptedAddress
         )
+        elapsed_time = time.time() - start_time
+        print("Elapsed Time for unencrypted data: {} seconds".format(elapsed_time))
 
         for _ in range(random.randint(1,100)):
             Appointment.objects.create(
