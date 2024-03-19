@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'playground',
-    'encrypted_model_fields',
     'silk',
     'rest_framework',
 ]
