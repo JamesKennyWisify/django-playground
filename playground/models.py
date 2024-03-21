@@ -2,14 +2,37 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import Group, Permission
 from django_cryptography.fields import encrypt
+from polymorphic.models import PolymorphicModel
+import uuid
 
-class MedicalUser(AbstractUser, models.Model):
+class CustomUser(AbstractUser):
+    groups = models.ManyToManyField(Group, verbose_name=('groups'), blank=True, related_name='customuser_groups')
+    user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='customeruser_permissions')
+
+class UserLogin(PolymorphicModel):
+    custom_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='userlogin_customuser', default=None)
+    groups = models.ManyToManyField(Group, verbose_name=('groups'), blank=True, related_name='user_login_groups')
+    user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='user_login_permissions')
+       
+
+class Person(UserLogin): 
     ethnicity = encrypt(models.CharField(max_length=100))
     birthdate = encrypt(models.DateField())
-    groups = models.ManyToManyField(Group, verbose_name=('groups'), blank=True, related_name='medical_users')
-    user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='medical_users')
-    address = models.ForeignKey('Address', on_delete=models.CASCADE, related_name='user_address')
-    encryptedName = encrypt(models.CharField(max_length=255, default='', blank=True, null=True))
+    name = encrypt(models.CharField(max_length=100))
+ 
+class MedicalProfessional(UserLogin):
+    associated_person = models.OneToOneField(Person, on_delete=models.CASCADE, related_name='medical_professional_userlogin')
+    salary = encrypt(models.CharField(max_length=100))
+    isak_level = encrypt(models.CharField(max_length=100))
+
+class MedicalEntityManager(UserLogin):
+    associated_person = models.OneToOneField(Person, on_delete=models.CASCADE, related_name='medical_manager_userlogin')
+    salary = encrypt(models.CharField(max_length=100))
+    is_super = encrypt(models.CharField(max_length=100)) 
+
+class MedicalPatient(UserLogin):
+    associated_person = models.OneToOneField(Person, on_delete=models.CASCADE, related_name='medical_patient_userlogin')
+    disease = encrypt(models.CharField(max_length=100))
 
 class UnencryptedMedicalUser(AbstractUser, models.Model):
     ethnicity = models.CharField(max_length=100)
@@ -18,6 +41,15 @@ class UnencryptedMedicalUser(AbstractUser, models.Model):
     user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='unencrypted_medical_users')
     address = models.ForeignKey('UnencryptedAddress', on_delete=models.CASCADE, related_name='user_unencrypted_address')
     unencryptedName = models.CharField(max_length=255, default='', blank=True, null=True)
+
+
+class MedicalUser(AbstractUser, models.Model):
+    ethnicity = encrypt(models.CharField(max_length=100))
+    birthdate = encrypt(models.DateField())
+    groups = models.ManyToManyField(Group, verbose_name=('groups'), blank=True, related_name='medical_users')
+    user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='medical_users')
+    address = models.ForeignKey('Address', on_delete=models.CASCADE, related_name='user_address')
+    encryptedName = encrypt(models.CharField(max_length=255, default='', blank=True, null=True))
 
 class Appointment(models.Model):
     date = models.DateTimeField()

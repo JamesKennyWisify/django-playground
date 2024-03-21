@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import appointments_by_user, generate_users, delete_users, get_unencrypted_users, get_users, get_usernames, get_ethnicities, delete_data, generate_appointment_data, generate_unencrypted_users, unencrypted_appointment_by_user
+from .views import appointments_by_user, create_polymorphic, generate_users, delete_users, get_polymorphic, get_unencrypted_users, get_users, get_usernames, get_ethnicities, delete_data, generate_appointment_data, generate_unencrypted_users, unencrypted_appointment_by_user, wipe_data
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,5 +30,8 @@ urlpatterns = [
     path('create_data/', generate_appointment_data, name="generate_data"),
     path('appointments_by_user', appointments_by_user, name="appointments_by_user"),
     path('unencrypted_appointments_by_user', unencrypted_appointment_by_user, name="unencrypted_appointments_by_user"),
-    path('silk/', include('silk.urls', namespace='silk'))    
+    path('silk/', include('silk.urls', namespace='silk'))    ,
+    path('create_polymorphic', create_polymorphic, name="create_polymorphic"),
+    path('get_polymorphic', get_polymorphic, name="get_polymorphic"),
+    path('wipe_data', wipe_data, name="wipe_data")
 ]
