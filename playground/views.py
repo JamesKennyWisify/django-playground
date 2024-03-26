@@ -373,13 +373,14 @@ def get_polymorphic(request):
     # Test to see if given a random UserLogin we can determine:
         # 1. The type of account
         # 2. the associated person
-    randomLogin = UserLogin.objects.last()
-    typeOfAccount = account_type(randomLogin)
-    if typeOfAccount != "Person":
-        associated_person = randomLogin.associated_person.name
+    randomLogin = UserLogin.objects.first()
+    ctype = ContentType.objects.get_for_id(randomLogin.polymorphic_ctype_id)
+    
+    if ctype.model == "person":
+        associated_person = randomLogin.name
     else:
-        associated_person = "I am the person"
-    response["Test"].append({'typeOfAccount': typeOfAccount, 'associated_person': associated_person})
+        associated_person = randomLogin.associated_person.name
+    response["Test"].append({'associated_person': associated_person})
     return JsonResponse(response)
 
 def wipe_data(request):
