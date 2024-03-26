@@ -244,8 +244,28 @@ def appointments_by_user(request):
 def unencrypted_appointment_by_user(request):
     appointments_data = UnencryptedAppointment.objects.select_related('unencrypted_medical_user', 'unencrypted_entity').annotate(num_appointments=Count('unencrypted_medical_user__appointments')).values('unencrypted_medical_user__unencryptedName', 'num_appointments', 'unencrypted_entity__name', 'unencrypted_entity__address__address_line_1', 'unencrypted_entity__address__address_line_2', 'unencrypted_entity__address__city', 'unencrypted_entity__address__post_code')[:1000]
     appointments_list = list(appointments_data)
-    return JsonResponse(appointments_list, safe=False)     
+    return JsonResponse(appointments_list, safe=False) 
 
+from django.contrib.contenttypes.models import ContentType
+
+def account_type(account):
+    if account.polymorphic_ctype == ContentType.objects.get_for_model(MedicalPatient):
+        return 'MedicalPatient'
+    elif account.polymorphic_ctype == ContentType.objects.get_for_model(MedicalProfessional): 
+        return 'MedicalProfessional'
+    else:
+        return 'MedicalEntityManager'
+
+
+def account_type(account):
+    if account.polymorphic_ctype == ContentType.objects.get_for_model(MedicalPatient):
+        return 'MedicalPatient'
+    elif account.polymorphic_ctype == ContentType.objects.get_for_model(MedicalProfessional): 
+        return 'MedicalProfessional'
+    elif account.polymorphic_ctype == ContentType.objects.get_for_model(MedicalEntityManager):
+        return 'MedicalEntityManager'
+    else:
+        return "Person"
 
 def create_polymorphic(request):
     print("resetting all models")
@@ -318,7 +338,8 @@ def get_polymorphic(request):
     response = {
         "Managers": [],
         "Professionals": [],
-        "Patients": []
+        "Patients": [],
+        "Test": []
     }
 
     # Get managers and their associated persons
@@ -348,11 +369,17 @@ def get_polymorphic(request):
             "email": patient.custom_user.email,
             "disease": patient.disease
         })
-    # response = UserLogin.objects.all()
-    # managers = response.instance_of(MedicalEntityManager)
 
-    # serializer = UserLoginSerializer(managers, many=True)
-    # return JsonResponse(serializer.data, safe=False)
+    # Test to see if given a random UserLogin we can determine:
+        # 1. The type of account
+        # 2. the associated person
+    randomLogin = UserLogin.objects.last()
+    typeOfAccount = account_type(randomLogin)
+    if typeOfAccount != "Person":
+        associated_person = randomLogin.associated_person.name
+    else:
+        associated_person = "I am the person"
+    response["Test"].append({'typeOfAccount': typeOfAccount, 'associated_person': associated_person})
     return JsonResponse(response)
 
 def wipe_data(request):
