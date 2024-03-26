@@ -5,15 +5,18 @@ from django_cryptography.fields import encrypt
 from polymorphic.models import PolymorphicModel
 import uuid
 
-class CustomUser(AbstractUser):
-    groups = models.ManyToManyField(Group, verbose_name=('groups'), blank=True, related_name='customuser_groups')
-    user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='customeruser_permissions')
 
-class UserLogin(PolymorphicModel):
-    custom_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='userlogin_customuser', default=None)
+USER_TYPE_CHOICES = [
+    (0, "Person"),
+    (1, "Entity Manager"),
+    (2, "Entity Professional"),
+    (3, "Entity Patient")
+]
+
+class UserLogin(AbstractUser):
     groups = models.ManyToManyField(Group, verbose_name=('groups'), blank=True, related_name='user_login_groups')
     user_permissions = models.ManyToManyField(Permission, verbose_name=('user permissions'), blank=True, related_name='user_login_permissions')
-       
+    user_type = models.SmallIntegerField(choices=USER_TYPE_CHOICES, null=False, default=0)
 
 class Person(UserLogin): 
     ethnicity = encrypt(models.CharField(max_length=100))

@@ -6,7 +6,7 @@ import uuid
 from django.http import JsonResponse
 from faker import Faker
 from django.utils import timezone
-from .models import Appointment, CustomUser, Entity, MedicalEntityManager, MedicalPatient, MedicalProfessional, MedicalUser, Address, Person, RandomWriteObject, UnencryptedAddress, UnencryptedAppointment, UnencryptedEntity, UnencryptedMedicalUser, UserLogin
+from .models import Appointment, Entity, MedicalEntityManager, MedicalPatient, MedicalProfessional, MedicalUser, Address, Person, RandomWriteObject, UnencryptedAddress, UnencryptedAppointment, UnencryptedEntity, UnencryptedMedicalUser, UserLogin
 from django.db.models import Count
 from .serializers import MedicalUserSerializer, UnencryptedMedicalUserSerializer, UserLoginSerializer
 
@@ -267,7 +267,7 @@ def account_type(account):
     else:
         return "Person"
 
-def create_polymorphic(request):
+def create_non_polymorphic(request):
     print("resetting all models")
     Person.objects.all().delete
     MedicalEntityManager.objects.all().delete()
@@ -282,42 +282,35 @@ def create_polymorphic(request):
     name = fake.name()
     ethnicity = ['White', 'Black', 'Asian', 'Hispanic', 'Other'][random.randint(0, 4)]
     birthdate = fake.date_of_birth()
-
-    ## first make a customuser object to hold auth details
-    c1 = CustomUser.objects.create(email=email, username=username)
-    p1 = Person.objects.create(custom_user=c1, name=name, ethnicity=ethnicity, birthdate=birthdate)
+    p1 = Person.objects.create(email=email, username=username, name=name, ethnicity=ethnicity, birthdate=birthdate)
 
     email = fake.email()
     username = fake.user_name()  # Use fake.user_name() to generate unique usernames
     name = fake.name()
     ethnicity = ['White', 'Black', 'Asian', 'Hispanic', 'Other'][random.randint(0, 4)]
     birthdate = fake.date_of_birth()
-    c2 = CustomUser.objects.create(email=email, username=username)
-    p2 = Person.objects.create(custom_user=c2, name=name, ethnicity=ethnicity, birthdate=birthdate)
+    p2 = Person.objects.create(email=email, username=username, name=name, ethnicity=ethnicity, birthdate=birthdate)
 
     email = fake.email()
     username = fake.user_name()  # Use fake.user_name() to generate unique usernames
     name = fake.name()
     ethnicity = ['White', 'Black', 'Asian', 'Hispanic', 'Other'][random.randint(0, 4)]
     birthdate = fake.date_of_birth()
-    c3 = CustomUser.objects.create(email=email, username=username)
-    p3 = Person.objects.create(custom_user=c3, name=name, ethnicity=ethnicity, birthdate=birthdate)
+    p3 = Person.objects.create(email=email, username=username, name=name, ethnicity=ethnicity, birthdate=birthdate)
 
     # Create entity manager data
     email = fake.email()
     username = fake.user_name()  # Use fake.user_name() to generate unique usernames
     salary = fake.random_number(digits=5)
     isak_level = fake.random_number(digits=1)
-    c4 = CustomUser.objects.create(email=email, username=username)
-    MedicalEntityManager.objects.create(custom_user=c4, associated_person=p1, salary=salary, is_super=True)
+    MedicalEntityManager.objects.create(email=email, username=username, associated_person=p1, salary=salary, is_super=True, user_type=1)
 
     # create professional data
     email = fake.email()
     username = fake.user_name()  # Use fake.user_name() to generate unique usernames
     salary = fake.random_number(digits=5)
     isak_level = fake.random_number(digits=1)
-    c5 = CustomUser.objects.create(email=email, username=username)
-    MedicalProfessional.objects.create(custom_user=c5, associated_person=p2, salary=salary, isak_level=isak_level)
+    MedicalProfessional.objects.create(email=email, username=username, associated_person=p2, salary=salary, isak_level=isak_level, user_type=2)
 
     # make another professional who is the same person as the manager
 
@@ -325,8 +318,7 @@ def create_polymorphic(request):
     email = fake.email()
     username = fake.user_name()  # Use fake.user_name() to generate unique usernames
     disease = fake.word()
-    c6 = CustomUser.objects.create(email=email, username=username)
-    MedicalPatient.objects.create(custom_user=c6, associated_person=p3, disease=disease)
+    MedicalPatient.objects.create(email=email, username=username, associated_person=p3, disease=disease, user_type=3)
 
     return JsonResponse({'message': 'Object generation completed'})
 
@@ -343,30 +335,33 @@ def get_polymorphic(request):
     }
 
     # Get managers and their associated persons
-    managers = UserLogin.objects.instance_of(MedicalEntityManager)
+    managers = UserLogin.objects.filter(user_type=1)
     for manager in managers:
+        manager = MedicalEntityManager.objects.get(pk = manager.pk)
         response["Managers"].append({
             "name": manager.associated_person.name,
-            "email": manager.custom_user.email,
+            "email": manager.email,
             "salary": manager.salary
         })
 
     # Get professionals and their associated persons
-    professionals = UserLogin.objects.instance_of(MedicalProfessional)
+    professionals = UserLogin.objects.filter(user_type=2)
     for professional in professionals:
+        professional = MedicalProfessional.objects.get(pk = professional.pk)
         response["Professionals"].append({
             "name": professional.associated_person.name,
-            "email": professional.custom_user.email,
+            "email": professional.email,
             "salary": professional.salary,
             "isak_level": professional.isak_level
         })
 
     # Get patients and their associated persons
-    patients = UserLogin.objects.instance_of(MedicalPatient)
+    patients = UserLogin.objects.filter(user_type=3)
     for patient in patients:
+        patient = MedicalPatient.objects.get(pk = patient.pk)
         response["Patients"].append({
             "name": patient.associated_person.name,
-            "email": patient.custom_user.email,
+            "email": patient.email,
             "disease": patient.disease
         })
 
@@ -374,11 +369,17 @@ def get_polymorphic(request):
         # 1. The type of account
         # 2. the associated person
     randomLogin = UserLogin.objects.last()
-    typeOfAccount = account_type(randomLogin)
-    if typeOfAccount != "Person":
-        associated_person = randomLogin.associated_person.name
+    typeOfAccount = randomLogin.user_type
+    print("Type of account: ", typeOfAccount)
+    if typeOfAccount == 1:
+        associated_person = MedicalEntityManager.objects.get(pk=randomLogin.pk).associated_person.name
+    elif typeOfAccount == 2:
+        associated_person = MedicalProfessional.objects.get(pk=randomLogin.pk).associated_person.name
+    elif typeOfAccount == 3:
+        associated_person = MedicalPatient.objects.get(pk=randomLogin.pk).associated_person.name
     else:
-        associated_person = "I am the person"
+        associated_person = randomLogin.name
+
     response["Test"].append({'typeOfAccount': typeOfAccount, 'associated_person': associated_person})
     return JsonResponse(response)
 
